@@ -264,7 +264,7 @@
 
     <script>
         // --- 1. SETUP URL BACKEND GOOGLE APPS SCRIPT ---
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxg4_DWqhZk_I2pGtwlQKgz6XNgj0IFK9ZQIQk2TTblNMgHtOi6adrk6dwKPC6-qvhcDQ/exec'; 
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfUeJU2Yc-WD_lz9lC94Xss9yityybigKHo3yvgbjKnmJ4KjU_KeTl2a30uwMyCkwPSg/exec'; 
 
         // --- 2. GET URL PARAMETER FOR GUEST NAME ---
         const urlParams = new URLSearchParams(window.location.search);
@@ -398,7 +398,7 @@
         let allComments = [];
         
         async function fetchComments() {
-            if(APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxg4_DWqhZk_I2pGtwlQKgz6XNgj0IFK9ZQIQk2TTblNMgHtOi6adrk6dwKPC6-qvhcDQ/exec') {
+            if(APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxfUeJU2Yc-WD_lz9lC94Xss9yityybigKHo3yvgbjKnmJ4KjU_KeTl2a30uwMyCkwPSg/exec') {
                 document.getElementById('loadingUcapan').innerHTML = "<em>(Belum ada data untuk ditampilkan)</em>";
                 return;
             }
@@ -474,7 +474,7 @@
         async function submitRSVP(e) {
             e.preventDefault();
             
-            if(APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxg4_DWqhZk_I2pGtwlQKgz6XNgj0IFK9ZQIQk2TTblNMgHtOi6adrk6dwKPC6-qvhcDQ/exec') {
+            if(APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxfUeJU2Yc-WD_lz9lC94Xss9yityybigKHo3yvgbjKnmJ4KjU_KeTl2a30uwMyCkwPSg/exec') {
                 Swal.fire("Error", "URL Google Apps Script belum disetting pada source code.", "error");
                 return;
             }
