@@ -1,214 +1,108 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wedding Invitation</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-
-<style>
-body {
-  font-family: 'Poppins', sans-serif;
-  margin:0;
-  background: linear-gradient(135deg,#fbeaff,#e0f7fa);
-  color:#333;
-}
-
-.container {
-  max-width: 800px;
-  margin:auto;
-  padding:20px;
-}
-
-.hero {
-  text-align:center;
-  padding:50px 20px;
-}
-
-.hero h1 {
-  font-size:40px;
-}
-
-.card {
-  background:#fff;
-  border-radius:16px;
-  padding:20px;
-  margin-top:20px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.1);
-}
-
-input, textarea, select {
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-
-button {
-  margin-top:15px;
-  background:#ff6fa5;
-  color:#fff;
-  border:none;
-  padding:12px;
-  border-radius:10px;
-  cursor:pointer;
-}
-
-button:hover {
-  background:#ff3f87;
-}
-
-.comment {
-  border-bottom:1px solid #eee;
-  padding:10px 0;
-}
-
-.timestamp {
-  font-size:12px;
-  color:#888;
-}
-
-.fade-in {
-  animation: fade 1s ease-in;
-}
-
-@keyframes fade {
-  from {opacity:0; transform:translateY(10px);}
-  to {opacity:1;}
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-  <div class="hero">
-    <h1>💍 Undangan Pernikahan</h1>
-    <p>Kepada Yth:</p>
-    <h2 id="guestName">Tamu Undangan</h2>
-  </div>
-
-  <div class="card fade-in">
-    <h3>Konfirmasi Kehadiran</h3>
-
-    <form id="rsvpForm">
-      <label>Nama</label>
-      <input type="text" id="nama" readonly>
-
-      <label>Status Kehadiran</label>
-      <select id="status">
-        <option value="Hadir">Hadir</option>
-        <option value="Tidak Hadir">Tidak Hadir</option>
-      </select>
-
-      <label>Ucapan</label>
-      <textarea id="ucapan" rows="4" placeholder="Tulis ucapan..."></textarea>
-
-      <button type="submit">Kirim</button>
-    </form>
-  </div>
-
-  <div class="card fade-in">
-    <h3>Ucapan & Doa</h3>
-    <div id="comments"></div>
-  </div>
-
-</div>
-
 <script>
-// ============================
-// 🔧 CONFIG
-// ============================
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNmxfsgLy9PZF_54wQHcFxUE9u7UQ81hX6hRCcDTb8P6C1Qjkz-LQzkh3QFIS4sxrIPg/exec";
+// CONFIG
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbxNmxfsgLy9PZF_54wQHcFxUE9u7UQ81hX6hRCcDTb8P6C1Qjkz-LQzkh3QFIS4sxrIPg/exec";
+const EVENT_DATE="2026-06-24T10:00:00";
+const SLIDES=["1.jpg","2.jpg","3.jpg","4.jpg","5.jpg"];
 
-// ============================
-// 📌 Ambil nama dari URL
-// ============================
-const params = new URLSearchParams(window.location.search);
-const namaTamu = params.get("to") || "Tamu Undangan";
+// nama tamu
+const params=new URLSearchParams(window.location.search);
+const nama=params.get("to")||"Tamu Undangan";
+document.getElementById("guestName").innerText=nama;
+document.getElementById("coverNama").innerText=nama;
+document.getElementById("nama").value=nama;
 
-document.getElementById("guestName").innerText = namaTamu;
-document.getElementById("nama").value = namaTamu;
+// GSAP
+const tl = gsap.timeline({paused:true});
+tl.to("#cover",{opacity:0,duration:1})
+  .to("#cover",{display:"none"})
+  .from(".section",{opacity:0,y:50,duration:1,stagger:0.3});
 
-// ============================
-// 🚀 Submit Form (FIXED)
-// ============================
-document.getElementById("rsvpForm").addEventListener("submit", async function(e) {
+// open invite
+function openInvite(){
+  document.getElementById("music").play();
+  tl.play();
+}
+
+// slider
+const slider=document.getElementById("slider");
+SLIDES.forEach((s,i)=>{
+  let img=document.createElement("img");
+  img.src=s;
+  if(i==0) img.classList.add("active");
+  slider.appendChild(img);
+});
+let idx=0;
+setInterval(()=>{
+  let imgs=document.querySelectorAll(".slider img");
+  imgs.forEach(i=>i.classList.remove("active"));
+  idx=(idx+1)%imgs.length;
+  imgs[idx].classList.add("active");
+},4000);
+
+// countdown
+setInterval(()=>{
+  let now=new Date().getTime();
+  let gap=new Date(EVENT_DATE)-now;
+  let d=Math.floor(gap/(1000*60*60*24));
+  document.getElementById("countdown").innerText="Hari H: "+d+" hari lagi";
+},1000);
+
+// ======================
+// 🚀 FORM (FIX CORS)
+// ======================
+document.getElementById("form").addEventListener("submit", async (e)=>{
   e.preventDefault();
 
-  const data = {
-    nama: document.getElementById("nama").value,
-    status: document.getElementById("status").value,
-    ucapan: document.getElementById("ucapan").value
-  };
+  const formData = new FormData();
+  formData.append("nama", nama);
+  formData.append("status", document.getElementById("status").value);
+  formData.append("ucapan", document.getElementById("ucapan").value);
 
   try {
-    const response = await fetch(SCRIPT_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
+    const res = await fetch(SCRIPT_URL,{
+      method:"POST",
+      body: formData
     });
 
-    const text = await response.text();
+    const text = await res.text();
+    console.log("Response:", text);
 
-    // Coba parse JSON
-    let result;
-    try {
-      result = JSON.parse(text);
-    } catch {
-      throw new Error("Response bukan JSON: " + text);
-    }
+    alert("Berhasil dikirim!");
+    document.getElementById("ucapan").value="";
 
-    if (result.status === "success") {
-      alert("Berhasil dikirim!");
-      document.getElementById("ucapan").value = "";
-      loadComments();
-    } else {
-      throw new Error("Response gagal");
-    }
+    loadComments();
 
-  } catch (err) {
+  } catch(err){
     console.error(err);
     alert("Gagal kirim");
   }
 });
 
-// ============================
-// 📥 Ambil komentar (FIXED)
-// ============================
-async function loadComments() {
-  try {
+// ======================
+// 📥 LOAD COMMENTS
+// ======================
+async function loadComments(){
+  try{
     const res = await fetch(SCRIPT_URL);
     const data = await res.json();
 
-    const container = document.getElementById("comments");
-    container.innerHTML = "";
+    let el=document.getElementById("comments");
+    el.innerHTML="";
 
-    data.slice(0,5).forEach(item => {
-      const div = document.createElement("div");
-      div.className = "comment";
-
-      div.innerHTML = `
-        <strong>${item.nama}</strong> (${item.status})<br>
-        ${item.ucapan}<br>
-        <span class="timestamp">${item.timestamp}</span>
+    data.slice(0,5).forEach(d=>{
+      el.innerHTML+=`
+        <p>
+          <b>${d.nama}</b> (${d.status})<br>
+          ${d.ucapan}
+        </p>
       `;
-
-      container.appendChild(div);
     });
 
-  } catch (err) {
-    console.error("Gagal load komentar:", err);
+  }catch(err){
+    console.error("Load gagal:",err);
   }
 }
 
 loadComments();
-</script>
 
-</body>
-</html>
+</script>
