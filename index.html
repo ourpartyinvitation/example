@@ -3,243 +3,190 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Wedding Invitation</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
-
-<!-- GSAP CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
 body {
+  font-family: 'Poppins', sans-serif;
   margin:0;
-  font-family:'Poppins',sans-serif;
-  background:#0c0c14;
-  color:white;
-  overflow-x:hidden;
+  background: linear-gradient(135deg,#fbeaff,#e0f7fa);
+  color:#333;
 }
 
-/* BACKGROUND */
-.bg {
-  position:fixed;
-  width:100%;
-  height:100%;
-  background:url('bg.jpg') center/cover;
-  z-index:-2;
-  filter:blur(6px) brightness(0.5);
-}
-
-/* COVER */
-#cover {
-  position:fixed;
-  width:100%;
-  height:100%;
-  background:black;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-  text-align:center;
-}
-
-.envelope {
-  width:200px;
-  height:120px;
-  background:#d4af37;
-  cursor:pointer;
-  margin-top:20px;
-}
-
-/* SECTION */
-.section {
-  opacity:0;
-  transform:translateY(50px);
-  padding:80px 20px;
-  text-align:center;
-}
-
-/* CARD */
-.card {
-  max-width:700px;
+.container {
+  max-width: 800px;
   margin:auto;
   padding:20px;
-  border-radius:20px;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(12px);
 }
 
-/* SLIDER */
-.slider img {
-  width:100%;
-  height:400px;
-  object-fit:cover;
-  position:absolute;
-  opacity:0;
-}
-.slider img.active {
-  opacity:1;
-  transition:1.5s;
+.hero {
+  text-align:center;
+  padding:50px 20px;
 }
 
-/* INPUT */
+.hero h1 {
+  font-size:40px;
+}
+
+.card {
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  margin-top:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+
 input, textarea, select {
   width:100%;
   padding:10px;
   margin-top:10px;
-  border:none;
   border-radius:8px;
+  border:1px solid #ccc;
 }
 
 button {
-  margin-top:10px;
-  padding:10px;
-  background:#d4af37;
+  margin-top:15px;
+  background:#ff6fa5;
+  color:#fff;
   border:none;
+  padding:12px;
   border-radius:10px;
+  cursor:pointer;
 }
 
-/* COUNTDOWN */
-#countdown {
-  position:sticky;
-  top:0;
-  text-align:center;
-  background:rgba(0,0,0,0.6);
-  padding:10px;
+button:hover {
+  background:#ff3f87;
+}
+
+.comment {
+  border-bottom:1px solid #eee;
+  padding:10px 0;
+}
+
+.timestamp {
+  font-size:12px;
+  color:#888;
+}
+
+.fade-in {
+  animation: fade 1s ease-in;
+}
+
+@keyframes fade {
+  from {opacity:0; transform:translateY(10px);}
+  to {opacity:1;}
 }
 </style>
 </head>
 
 <body>
 
-<div class="bg"></div>
+<div class="container">
 
-<!-- COVER -->
-<div id="cover">
-  <h2>Turut Mengundang</h2>
-  <h1 id="coverNama"></h1>
-  <div class="envelope" onclick="openInvite()"></div>
-</div>
+  <div class="hero">
+    <h1>💍 Undangan Pernikahan</h1>
+    <p>Kepada Yth:</p>
+    <h2 id="guestName">Tamu Undangan</h2>
+  </div>
 
-<audio id="music" loop>
-  <source src="music.mp3">
-</audio>
+  <!-- FORM RSVP -->
+  <div class="card fade-in">
+    <h3>Konfirmasi Kehadiran</h3>
 
-<div id="countdown"></div>
+    <form id="rsvpForm">
+      <label>Nama</label>
+      <input type="text" id="nama" readonly>
 
-<!-- HERO -->
-<div class="section">
-  <h1>Wedding Invitation</h1>
-  <h2 id="guestName"></h2>
-</div>
-
-<!-- SLIDER -->
-<div class="section">
-  <div class="slider" id="slider"></div>
-</div>
-
-<!-- RSVP -->
-<div class="section">
-  <div class="card">
-    <h3>RSVP</h3>
-    <form id="form">
-      <input id="nama" readonly>
+      <label>Status Kehadiran</label>
       <select id="status">
-        <option>Hadir</option>
-        <option>Tidak Hadir</option>
+        <option value="Hadir">Hadir</option>
+        <option value="Tidak Hadir">Tidak Hadir</option>
       </select>
-      <textarea id="ucapan"></textarea>
-      <button>Kirim</button>
+
+      <label>Ucapan</label>
+      <textarea id="ucapan" rows="4" placeholder="Tulis ucapan..."></textarea>
+
+      <button type="submit">Kirim</button>
     </form>
+  </div>
+
+  <!-- KOMENTAR -->
+  <div class="card fade-in">
+    <h3>Ucapan & Doa</h3>
     <div id="comments"></div>
   </div>
+
 </div>
 
 <script>
-// CONFIG
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbxNmxfsgLy9PZF_54wQHcFxUE9u7UQ81hX6hRCcDTb8P6C1Qjkz-LQzkh3QFIS4sxrIPg/exec";
-const EVENT_DATE="2026-12-31T10:00:00";
-const SLIDES=["1.jpg","2.jpg","3.jpg","4.jpg","5.jpg"];
+// ============================
+// 🔧 CONFIG (WAJIB DIISI)
+// ============================
+const SCRIPT_URL = "ISI_URL_GOOGLE_APPS_SCRIPT_KAMU_DISINI";
 
-// nama tamu
-const params=new URLSearchParams(window.location.search);
-const nama=params.get("to")||"Tamu Undangan";
-document.getElementById("guestName").innerText=nama;
-document.getElementById("coverNama").innerText=nama;
-document.getElementById("nama").value=nama;
+// ============================
+// 📌 Ambil nama dari URL
+// ============================
+const params = new URLSearchParams(window.location.search);
+const namaTamu = params.get("to") || "Tamu Undangan";
 
-// GSAP TIMELINE
-const tl = gsap.timeline({paused:true});
+document.getElementById("guestName").innerText = namaTamu;
+document.getElementById("nama").value = namaTamu;
 
-// animasi masuk
-tl.to("#cover", {opacity:0, duration:1})
-  .to("#cover", {display:"none"})
-  .from(".section", {
-    opacity:0,
-    y:50,
-    duration:1,
-    stagger:0.3,
-    ease:"power3.out"
-  });
-
-// open invite
-function openInvite(){
-  document.getElementById("music").play();
-  tl.play();
-}
-
-// slider cinematic
-const slider=document.getElementById("slider");
-SLIDES.forEach((s,i)=>{
-  let img=document.createElement("img");
-  img.src=s;
-  if(i==0) img.classList.add("active");
-  slider.appendChild(img);
-});
-let idx=0;
-setInterval(()=>{
-  let imgs=document.querySelectorAll(".slider img");
-  imgs.forEach(i=>i.classList.remove("active"));
-  idx=(idx+1)%imgs.length;
-  imgs[idx].classList.add("active");
-},4000);
-
-// countdown
-setInterval(()=>{
-  let now=new Date().getTime();
-  let gap=new Date(EVENT_DATE)-now;
-  let d=Math.floor(gap/(1000*60*60*24));
-  document.getElementById("countdown").innerText="Hari H: "+d+" hari lagi";
-},1000);
-
-// form
-document.getElementById("form").addEventListener("submit",e=>{
+// ============================
+// 🚀 Submit Form
+// ============================
+document.getElementById("rsvpForm").addEventListener("submit", function(e) {
   e.preventDefault();
-  fetch(SCRIPT_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      nama:nama,
-      status:document.getElementById("status").value,
-      ucapan:document.getElementById("ucapan").value
-    })
-  }).then(()=>loadComments());
+
+  const data = {
+    nama: document.getElementById("nama").value,
+    status: document.getElementById("status").value,
+    ucapan: document.getElementById("ucapan").value
+  };
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(res => {
+    alert("Berhasil dikirim!");
+    document.getElementById("ucapan").value = "";
+    loadComments();
+  })
+  .catch(err => alert("Gagal kirim"));
 });
 
-// load comments
-function loadComments(){
+// ============================
+// 📥 Ambil komentar
+// ============================
+function loadComments() {
   fetch(SCRIPT_URL)
-  .then(r=>r.json())
-  .then(data=>{
-    let el=document.getElementById("comments");
-    el.innerHTML="";
-    data.slice(0,5).forEach(d=>{
-      el.innerHTML+=`<p><b>${d.nama}</b><br>${d.ucapan}</p>`;
-    });
-  });
-}
-loadComments();
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("comments");
+      container.innerHTML = "";
 
+      data.slice(0,5).forEach(item => {
+        const div = document.createElement("div");
+        div.className = "comment";
+
+        div.innerHTML = `
+          <strong>${item.nama}</strong> (${item.status})<br>
+          ${item.ucapan}<br>
+          <span class="timestamp">${item.timestamp}</span>
+        `;
+
+        container.appendChild(div);
+      });
+    });
+}
+
+loadComments();
 </script>
 
 </body>
