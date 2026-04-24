@@ -6,7 +6,6 @@
 <title>Wedding Invitation</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
 <style>
@@ -41,11 +40,17 @@ body {
 }
 
 .envelope {
-  width:200px;
+  width:220px;
   height:120px;
   background:#d4af37;
   cursor:pointer;
   margin-top:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  color:black;
+  border-radius:10px;
 }
 
 .section {
@@ -106,10 +111,11 @@ button {
 
 <div class="bg"></div>
 
+<!-- COVER -->
 <div id="cover">
   <h2>Turut Mengundang</h2>
   <h1 id="coverNama"></h1>
-  <div class="envelope" onclick="openInvite()"></div>
+  <div class="envelope" onclick="openInvite()">BUKA UNDANGAN</div>
 </div>
 
 <audio id="music" loop>
@@ -118,15 +124,18 @@ button {
 
 <div id="countdown"></div>
 
+<!-- HERO -->
 <div class="section">
   <h1>Wedding Invitation</h1>
   <h2 id="guestName"></h2>
 </div>
 
+<!-- SLIDER -->
 <div class="section">
   <div class="slider" id="slider"></div>
 </div>
 
+<!-- RSVP -->
 <div class="section">
   <div class="card">
     <h3>RSVP</h3>
@@ -136,7 +145,7 @@ button {
         <option>Hadir</option>
         <option>Tidak Hadir</option>
       </select>
-      <textarea id="ucapan"></textarea>
+      <textarea id="ucapan" placeholder="Tulis ucapan..."></textarea>
       <button type="submit">Kirim</button>
     </form>
     <div id="comments"></div>
@@ -146,12 +155,11 @@ button {
 <script>
 document.addEventListener("DOMContentLoaded", function(){
 
-// ================= CONFIG =================
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycbxNmxfsgLy9PZF_54wQHcFxUE9u7UQ81hX6hRCcDTb8P6C1Qjkz-LQzkh3QFIS4sxrIPg/exec";
 const EVENT_DATE="2026-12-31T10:00:00";
 const SLIDES=["1.jpg","2.jpg","3.jpg","4.jpg","5.jpg"];
 
-// ================= NAMA TAMU =================
+// ================= NAMA =================
 const params=new URLSearchParams(window.location.search);
 const nama=params.get("to")||"Tamu Undangan";
 
@@ -165,18 +173,22 @@ tl.to("#cover",{opacity:0,duration:1})
   .to("#cover",{display:"none"})
   .from(".section",{opacity:0,y:50,duration:1,stagger:0.3});
 
-// global function (biar onclick bisa akses)
 window.openInvite = function(){
-  document.getElementById("music").play();
+  document.getElementById("music").play().catch(()=>{});
   tl.play();
 };
+
+// 🔥 AUTO OPEN (biar gak blank)
+setTimeout(()=>{
+  tl.play();
+},1500);
 
 // ================= SLIDER =================
 const slider=document.getElementById("slider");
 SLIDES.forEach((s,i)=>{
   let img=document.createElement("img");
   img.src=s;
-  if(i==0) img.classList.add("active");
+  if(i===0) img.classList.add("active");
   slider.appendChild(img);
 });
 
@@ -196,7 +208,7 @@ setInterval(()=>{
   document.getElementById("countdown").innerText="Hari H: "+d+" hari lagi";
 },1000);
 
-// ================= FORM (FIX CORS) =================
+// ================= FORM =================
 document.getElementById("form").addEventListener("submit", async (e)=>{
   e.preventDefault();
 
@@ -208,12 +220,11 @@ document.getElementById("form").addEventListener("submit", async (e)=>{
   try {
     await fetch(SCRIPT_URL,{
       method:"POST",
-      body: formData
+      body:formData
     });
 
     alert("Berhasil dikirim!");
     document.getElementById("ucapan").value="";
-
     loadComments();
 
   } catch(err){
@@ -225,8 +236,8 @@ document.getElementById("form").addEventListener("submit", async (e)=>{
 // ================= LOAD COMMENTS =================
 async function loadComments(){
   try{
-    const res = await fetch(SCRIPT_URL);
-    const data = await res.json();
+    const res=await fetch(SCRIPT_URL);
+    const data=await res.json();
 
     let el=document.getElementById("comments");
     el.innerHTML="";
