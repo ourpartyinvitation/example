@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wedding Invitation</title>
 
-<!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
@@ -92,7 +91,6 @@ button:hover {
     <h2 id="guestName">Tamu Undangan</h2>
   </div>
 
-  <!-- FORM RSVP -->
   <div class="card fade-in">
     <h3>Konfirmasi Kehadiran</h3>
 
@@ -113,7 +111,6 @@ button:hover {
     </form>
   </div>
 
-  <!-- KOMENTAR -->
   <div class="card fade-in">
     <h3>Ucapan & Doa</h3>
     <div id="comments"></div>
@@ -123,7 +120,7 @@ button:hover {
 
 <script>
 // ============================
-// 🔧 CONFIG (WAJIB DIISI)
+// 🔧 CONFIG
 // ============================
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNmxfsgLy9PZF_54wQHcFxUE9u7UQ81hX6hRCcDTb8P6C1Qjkz-LQzkh3QFIS4sxrIPg/exec";
 
@@ -137,9 +134,9 @@ document.getElementById("guestName").innerText = namaTamu;
 document.getElementById("nama").value = namaTamu;
 
 // ============================
-// 🚀 Submit Form
+// 🚀 Submit Form (FIXED)
 // ============================
-document.getElementById("rsvpForm").addEventListener("submit", function(e) {
+document.getElementById("rsvpForm").addEventListener("submit", async function(e) {
   e.preventDefault();
 
   const data = {
@@ -148,42 +145,66 @@ document.getElementById("rsvpForm").addEventListener("submit", function(e) {
     ucapan: document.getElementById("ucapan").value
   };
 
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify(data)
-  })
-  .then(res => res.json())
-  .then(res => {
-    alert("Berhasil dikirim!");
-    document.getElementById("ucapan").value = "";
-    loadComments();
-  })
-  .catch(err => alert("Gagal kirim"));
+  try {
+    const response = await fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    const text = await response.text();
+
+    // Coba parse JSON
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch {
+      throw new Error("Response bukan JSON: " + text);
+    }
+
+    if (result.status === "success") {
+      alert("Berhasil dikirim!");
+      document.getElementById("ucapan").value = "";
+      loadComments();
+    } else {
+      throw new Error("Response gagal");
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Gagal kirim");
+  }
 });
 
 // ============================
-// 📥 Ambil komentar
+// 📥 Ambil komentar (FIXED)
 // ============================
-function loadComments() {
-  fetch(SCRIPT_URL)
-    .then(res => res.json())
-    .then(data => {
-      const container = document.getElementById("comments");
-      container.innerHTML = "";
+async function loadComments() {
+  try {
+    const res = await fetch(SCRIPT_URL);
+    const data = await res.json();
 
-      data.slice(0,5).forEach(item => {
-        const div = document.createElement("div");
-        div.className = "comment";
+    const container = document.getElementById("comments");
+    container.innerHTML = "";
 
-        div.innerHTML = `
-          <strong>${item.nama}</strong> (${item.status})<br>
-          ${item.ucapan}<br>
-          <span class="timestamp">${item.timestamp}</span>
-        `;
+    data.slice(0,5).forEach(item => {
+      const div = document.createElement("div");
+      div.className = "comment";
 
-        container.appendChild(div);
-      });
+      div.innerHTML = `
+        <strong>${item.nama}</strong> (${item.status})<br>
+        ${item.ucapan}<br>
+        <span class="timestamp">${item.timestamp}</span>
+      `;
+
+      container.appendChild(div);
     });
+
+  } catch (err) {
+    console.error("Gagal load komentar:", err);
+  }
 }
 
 loadComments();
