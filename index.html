@@ -150,6 +150,10 @@
                         <span id="minutes" class="block text-4xl md:text-5xl mb-2 font-bold">00</span>
                         <span class="text-sm md:text-base">Menit</span>
                     </div>
+                    <div class="bg-white/20 backdrop-blur-lg p-4 rounded-xl w-24 md:w-32 border border-white/40 shadow-xl">
+                        <span id="seconds" class="block text-4xl md:text-5xl mb-2 font-bold">00</span>
+                        <span class="text-sm md:text-base">Detik</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -373,10 +377,12 @@
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
             document.getElementById("days").innerText = days < 10 ? '0' + days : days;
             document.getElementById("hours").innerText = hours < 10 ? '0' + hours : hours;
             document.getElementById("minutes").innerText = minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById("seconds").innerText = seconds < 10 ? '0' + seconds : seconds;
         }
         
         setInterval(updateCountdown, 60000); 
