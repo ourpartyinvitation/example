@@ -33,27 +33,66 @@
     </script>
 
     <style>
-        body { background-color: #FAF9F6; overflow-x: hidden; }
-        .bg-cinematic {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop');
+        /* Global Background Image (Tampil di seluruh halaman) */
+        body { 
+            background-image: url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
+            background-repeat: no-repeat;
+            overflow-x: hidden; 
         }
+
+        /* Overlay gelap untuk Cover & Section tertentu */
+        .bg-cinematic {
+            background-color: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Bunga Parallax Bawaan */
         .parallax-flower {
             position: fixed;
-            opacity: 0.15;
+            opacity: 0.25;
             pointer-events: none;
             z-index: 0;
         }
+
         .content-wrap { z-index: 10; position: relative; }
         
-        /* Custom Scrollbar for Comments */
+        /* Custom Scrollbar */
         .comments-container::-webkit-scrollbar { width: 6px; }
-        .comments-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .comments-container::-webkit-scrollbar-track { background: rgba(241, 241, 241, 0.5); border-radius: 4px; }
         .comments-container::-webkit-scrollbar-thumb { background: #D2B48C; border-radius: 4px; }
         
         .swiper-slide img { width: 100%; height: 60vh; object-fit: cover; border-radius: 12px; }
+
+        /* --- Animasi Bunga Jatuh Tambahan --- */
+        .falling-petal {
+            position: fixed;
+            top: -10%;
+            z-index: 9999;
+            pointer-events: none;
+            background-image: url('https://cdn-icons-png.flaticon.com/512/1085/1085028.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                top: -10%;
+                transform: translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.8; }
+            50% { transform: translateX(80px) rotate(180deg); }
+            90% { opacity: 0.8; }
+            100% {
+                top: 110%;
+                transform: translateX(-80px) rotate(360deg);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body class="font-sans text-dark antialiased">
@@ -66,16 +105,18 @@
     <img src="https://cdn-icons-png.flaticon.com/512/1085/1085028.png" class="parallax-flower" style="top: 40%; right: 5%; width: 150px;" alt="flower">
     <img src="https://cdn-icons-png.flaticon.com/512/1085/1085028.png" class="parallax-flower" style="bottom: 20%; left: 15%; width: 120px;" alt="flower">
 
-    <div id="coverScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-cinematic text-white transition-transform duration-1000">
+    <div id="flower-container" class="fixed inset-0 pointer-events-none z-50 overflow-hidden"></div>
+
+    <div id="coverScreen" class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-cinematic text-white transition-transform duration-1000">
         <div class="text-center px-6">
             <p class="text-sm tracking-widest uppercase mb-4 opacity-80">The Wedding Of</p>
             <h1 class="font-script text-6xl md:text-8xl mb-6 text-secondary">Romeo & Juliet</h1>
             <p class="mb-8 font-serif italic text-lg">Kepada Yth. Bapak/Ibu/Saudara/i</p>
-            <h2 id="guestName" class="text-3xl font-bold mb-8 text-white bg-dark/50 px-6 py-2 rounded-lg inline-block border border-secondary/50">
+            <h2 id="guestName" class="text-3xl font-bold mb-8 text-white bg-dark/50 px-6 py-2 rounded-lg inline-block border border-secondary/50 backdrop-blur-sm">
                 Nama Tamu
             </h2>
             <p class="text-xs mb-8 opacity-70">*Mohon maaf bila ada kesalahan penulisan nama/gelar</p>
-            <button onclick="openInvitation()" class="bg-primary hover:bg-white hover:text-primary text-white border border-primary transition-all duration-300 px-8 py-3 rounded-full font-serif flex items-center gap-2 mx-auto shadow-xl">
+            <button onclick="openInvitation()" class="bg-primary/90 backdrop-blur hover:bg-white hover:text-primary text-white border border-white/50 transition-all duration-300 px-8 py-3 rounded-full font-serif flex items-center gap-2 mx-auto shadow-xl">
                 <i class="fa-solid fa-envelope-open-text"></i> Buka Undangan
             </button>
         </div>
@@ -83,8 +124,8 @@
 
     <div id="mainContent" class="hidden content-wrap">
 
-        <section class="min-h-screen flex items-center justify-center text-center p-8 bg-white/80 backdrop-blur-sm">
-            <div class="max-w-3xl mx-auto gsap-fade-up">
+        <section class="min-h-screen flex items-center justify-center text-center p-8 bg-white/60 backdrop-blur-md">
+            <div class="max-w-3xl mx-auto gsap-fade-up bg-white/40 p-8 rounded-3xl shadow-lg border border-white/50">
                 <h2 class="font-script text-5xl text-primary mb-6">Maha Suci Allah</h2>
                 <p class="font-serif text-lg leading-relaxed mb-6">
                     "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu isteri-isteri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya diantaramu rasa kasih dan sayang. Sesungguhnya pada yang demikian itu benar-benar terdapat tanda-tanda bagi kaum yang berfikir."
@@ -93,19 +134,19 @@
             </div>
         </section>
 
-        <section class="py-20 bg-primary text-white text-center">
+        <section class="py-20 bg-primary/70 backdrop-blur-md text-white text-center border-y border-white/20">
             <div class="max-w-4xl mx-auto px-6 gsap-fade-up">
-                <h2 class="font-serif text-3xl mb-10">Menuju Hari Bahagia</h2>
+                <h2 class="font-serif text-3xl mb-10 text-white drop-shadow-md">Menuju Hari Bahagia</h2>
                 <div class="flex justify-center gap-4 md:gap-8 font-serif">
-                    <div class="bg-white/10 backdrop-blur p-4 rounded-xl w-24 md:w-32 border border-white/20">
+                    <div class="bg-white/20 backdrop-blur-lg p-4 rounded-xl w-24 md:w-32 border border-white/40 shadow-xl">
                         <span id="days" class="block text-4xl md:text-5xl mb-2 font-bold">00</span>
                         <span class="text-sm md:text-base">Hari</span>
                     </div>
-                    <div class="bg-white/10 backdrop-blur p-4 rounded-xl w-24 md:w-32 border border-white/20">
+                    <div class="bg-white/20 backdrop-blur-lg p-4 rounded-xl w-24 md:w-32 border border-white/40 shadow-xl">
                         <span id="hours" class="block text-4xl md:text-5xl mb-2 font-bold">00</span>
                         <span class="text-sm md:text-base">Jam</span>
                     </div>
-                    <div class="bg-white/10 backdrop-blur p-4 rounded-xl w-24 md:w-32 border border-white/20">
+                    <div class="bg-white/20 backdrop-blur-lg p-4 rounded-xl w-24 md:w-32 border border-white/40 shadow-xl">
                         <span id="minutes" class="block text-4xl md:text-5xl mb-2 font-bold">00</span>
                         <span class="text-sm md:text-base">Menit</span>
                     </div>
@@ -113,44 +154,45 @@
             </div>
         </section>
 
-        <section class="py-20 px-6 max-w-5xl mx-auto gsap-fade-up">
-            <h2 class="font-script text-5xl text-center text-primary mb-12">Our Moments</h2>
-            <div class="swiper mySwiper shadow-2xl rounded-xl border-4 border-white">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2069&auto=format&fit=crop" alt="Prewed 1"></div>
-                    <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=2070&auto=format&fit=crop" alt="Prewed 2"></div>
-                    <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?q=80&w=2070&auto=format&fit=crop" alt="Prewed 3"></div>
-                    <div class="swiper-slide"><img src="https://69eec3b7abe5326bdb41c716.imgix.net/puppy.jpg?q=80&w=2070&auto=format&fit=crop" alt="Prewed 4"></div>
-                    <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?q=80&w=2070&auto=format&fit=crop" alt="Prewed 5"></div>
+        <section class="py-20 px-6 bg-white/50 backdrop-blur-sm">
+            <div class="max-w-5xl mx-auto gsap-fade-up">
+                <h2 class="font-script text-5xl text-center text-primary mb-12 drop-shadow-sm">Our Moments</h2>
+                <div class="swiper mySwiper shadow-2xl rounded-xl border-4 border-white/80 bg-white/30 backdrop-blur-md p-2">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2069&auto=format&fit=crop" alt="Prewed 1"></div>
+                        <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=2070&auto=format&fit=crop" alt="Prewed 2"></div>
+                        <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?q=80&w=2070&auto=format&fit=crop" alt="Prewed 3"></div>
+                        <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?q=80&w=2070&auto=format&fit=crop" alt="Prewed 5"></div>
+                    </div>
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-button-next text-white drop-shadow-lg"></div>
+                    <div class="swiper-button-prev text-white drop-shadow-lg"></div>
                 </div>
-                <div class="swiper-pagination"></div>
-                <div class="swiper-button-next text-white"></div>
-                <div class="swiper-button-prev text-white"></div>
             </div>
         </section>
 
-        <section class="py-20 bg-white">
+        <section class="py-20 bg-white/60 backdrop-blur-md border-y border-white/40">
             <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24 text-center">
-                <div class="gsap-fade-right">
+                <div class="gsap-fade-right bg-white/40 p-8 rounded-3xl shadow-xl border border-white/50 backdrop-blur-sm">
                     <img src="https://images.unsplash.com/photo-1519699047748-de8e457a634e?q=80&w=2000&auto=format&fit=crop" class="w-48 h-48 rounded-full object-cover mx-auto mb-6 shadow-lg border-4 border-secondary" alt="Groom">
                     <h3 class="font-serif text-3xl font-bold mb-2">Romeo Montague</h3>
-                    <p class="text-sm text-gray-500 mb-4">Putra dari Bpk. Montague & Ibu Lady Montague</p>
-                    <a href="#" class="text-primary hover:text-dark"><i class="fab fa-instagram text-2xl"></i></a>
+                    <p class="text-sm text-gray-700 font-medium mb-4">Putra dari Bpk. Montague & Ibu Lady Montague</p>
+                    <a href="#" class="text-primary hover:text-dark transition-colors"><i class="fab fa-instagram text-2xl"></i></a>
                 </div>
                 
-                <h2 class="font-script text-6xl text-secondary gsap-fade-up">&</h2>
+                <h2 class="font-script text-6xl text-primary drop-shadow-md gsap-fade-up">&</h2>
 
-                <div class="gsap-fade-left">
+                <div class="gsap-fade-left bg-white/40 p-8 rounded-3xl shadow-xl border border-white/50 backdrop-blur-sm">
                     <img src="https://images.unsplash.com/photo-1545233159-4fbd73c33b93?q=80&w=2000&auto=format&fit=crop" class="w-48 h-48 rounded-full object-cover mx-auto mb-6 shadow-lg border-4 border-secondary" alt="Bride">
                     <h3 class="font-serif text-3xl font-bold mb-2">Juliet Capulet</h3>
-                    <p class="text-sm text-gray-500 mb-4">Putri dari Bpk. Capulet & Ibu Lady Capulet</p>
-                    <a href="#" class="text-primary hover:text-dark"><i class="fab fa-instagram text-2xl"></i></a>
+                    <p class="text-sm text-gray-700 font-medium mb-4">Putri dari Bpk. Capulet & Ibu Lady Capulet</p>
+                    <a href="#" class="text-primary hover:text-dark transition-colors"><i class="fab fa-instagram text-2xl"></i></a>
                 </div>
             </div>
         </section>
 
-        <section class="py-20 bg-cinematic text-white text-center relative overflow-hidden">
-            <div class="max-w-4xl mx-auto px-6 relative z-10 gsap-fade-up bg-dark/60 p-10 rounded-2xl border border-secondary/30 backdrop-blur-sm">
+        <section class="py-20 bg-black/40 backdrop-blur-md text-white text-center relative overflow-hidden">
+            <div class="max-w-4xl mx-auto px-6 relative z-10 gsap-fade-up bg-dark/60 p-10 rounded-2xl border border-secondary/30 backdrop-blur-lg shadow-2xl">
                 <h2 class="font-script text-5xl mb-10 text-secondary">Save The Date</h2>
                 
                 <div class="mb-10">
@@ -168,36 +210,36 @@
                 <div class="mt-12">
                     <h3 class="font-serif text-2xl font-bold mb-4">Lokasi Acara</h3>
                     <p class="mb-4">Grand Ballroom Hotel Bintang Lima<br>Jl. Sudirman No. 123, Jakarta Selatan</p>
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126920.24089308474!2d106.763821!3d-6.229741!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMTMnNDcuMSJTIDEwNsKwNDUnNDkuOCJF!5e0!3m2!1sen!2sid!4v1600000000000!5m2!1sen!2sid" width="100%" height="300" style="border:0; border-radius: 12px;" allowfullscreen="" loading="lazy" class="mb-6 shadow-lg"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126920.24089308474!2d106.763821!3d-6.229741!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMTMnNDcuMSJTIDEwNsKwNDUnNDkuOCJF!5e0!3m2!1sen!2sid!4v1600000000000!5m2!1sen!2sid" width="100%" height="300" style="border:0; border-radius: 12px;" allowfullscreen="" loading="lazy" class="mb-6 shadow-lg opacity-90 hover:opacity-100 transition-opacity"></iframe>
                     
-                    <a href="https://goo.gl/maps/contoh" target="_blank" class="bg-secondary hover:bg-white hover:text-secondary text-dark px-6 py-2 rounded-full font-bold transition-all inline-flex items-center gap-2">
+                    <a href="https://goo.gl/maps/contoh" target="_blank" class="bg-secondary/90 hover:bg-white hover:text-secondary text-dark px-6 py-2 rounded-full font-bold transition-all inline-flex items-center gap-2 backdrop-blur-sm border border-secondary">
                         <i class="fas fa-map-marker-alt"></i> Buka di Google Maps
                     </a>
                 </div>
             </div>
         </section>
 
-        <section class="py-20 bg-white text-center">
+        <section class="py-20 bg-white/60 backdrop-blur-md text-center border-y border-white/40">
             <div class="max-w-3xl mx-auto px-6 gsap-fade-up">
-                <h2 class="font-script text-5xl text-primary mb-6">Wedding Gift</h2>
-                <p class="font-serif text-gray-600 mb-10">Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Namun, bagi Anda yang ingin memberikan tanda kasih, dapat melalui fitur di bawah ini:</p>
+                <h2 class="font-script text-5xl text-primary mb-6 drop-shadow-sm">Wedding Gift</h2>
+                <p class="font-serif text-gray-800 font-medium mb-10">Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Namun, bagi Anda yang ingin memberikan tanda kasih, dapat melalui fitur di bawah ini:</p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="bg-white/50 backdrop-blur-md p-6 rounded-xl border border-white/60 shadow-lg">
                         <i class="fas fa-building-columns text-4xl text-primary mb-4"></i>
                         <h3 class="font-bold text-xl mb-2">BCA</h3>
-                        <p class="text-2xl font-serif tracking-widest mb-2" id="rekBCA">1234567890</p>
-                        <p class="text-gray-500 mb-4">a.n Romeo Montague</p>
-                        <button onclick="copyRekening('rekBCA')" class="bg-dark text-white px-4 py-2 rounded-md text-sm hover:bg-primary transition-all flex items-center justify-center gap-2 mx-auto">
+                        <p class="text-2xl font-serif tracking-widest mb-2 text-dark" id="rekBCA">1234567890</p>
+                        <p class="text-gray-600 font-medium mb-4">a.n Romeo Montague</p>
+                        <button onclick="copyRekening('rekBCA')" class="bg-dark/90 backdrop-blur text-white px-4 py-2 rounded-md text-sm hover:bg-primary transition-all flex items-center justify-center gap-2 mx-auto">
                             <i class="far fa-copy"></i> Salin Rekening
                         </button>
                     </div>
-                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="bg-white/50 backdrop-blur-md p-6 rounded-xl border border-white/60 shadow-lg">
                         <i class="fas fa-building-columns text-4xl text-primary mb-4"></i>
                         <h3 class="font-bold text-xl mb-2">Mandiri</h3>
-                        <p class="text-2xl font-serif tracking-widest mb-2" id="rekMandiri">0987654321</p>
-                        <p class="text-gray-500 mb-4">a.n Juliet Capulet</p>
-                        <button onclick="copyRekening('rekMandiri')" class="bg-dark text-white px-4 py-2 rounded-md text-sm hover:bg-primary transition-all flex items-center justify-center gap-2 mx-auto">
+                        <p class="text-2xl font-serif tracking-widest mb-2 text-dark" id="rekMandiri">0987654321</p>
+                        <p class="text-gray-600 font-medium mb-4">a.n Juliet Capulet</p>
+                        <button onclick="copyRekening('rekMandiri')" class="bg-dark/90 backdrop-blur text-white px-4 py-2 rounded-md text-sm hover:bg-primary transition-all flex items-center justify-center gap-2 mx-auto">
                             <i class="far fa-copy"></i> Salin Rekening
                         </button>
                     </div>
@@ -205,54 +247,54 @@
             </div>
         </section>
 
-        <section class="py-20 bg-[#f4ece1]">
+        <section class="py-20 bg-white/50 backdrop-blur-md">
             <div class="max-w-4xl mx-auto px-6 gsap-fade-up">
-                <h2 class="font-script text-5xl text-center text-primary mb-12">RSVP & Ucapan</h2>
+                <h2 class="font-script text-5xl text-center text-primary mb-12 drop-shadow-sm">RSVP & Ucapan</h2>
                 
-                <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 mb-10">
+                <div class="bg-white/60 backdrop-blur-lg p-8 rounded-3xl shadow-2xl border border-white/60 mb-10">
                     <form id="rsvpForm" onsubmit="submitRSVP(event)">
                         <div class="mb-4">
-                            <label class="block text-sm font-bold mb-2">Nama Tamu</label>
-                            <input type="text" id="inputNama" required readonly class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 focus:outline-none">
+                            <label class="block text-sm font-bold mb-2 text-dark">Nama Tamu</label>
+                            <input type="text" id="inputNama" required readonly class="w-full px-4 py-3 rounded-lg border border-white bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary backdrop-blur-sm text-dark font-medium">
                         </div>
                         <div class="mb-4">
-                            <label class="block text-sm font-bold mb-2">Konfirmasi Kehadiran</label>
-                            <select id="inputHadir" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:outline-none">
+                            <label class="block text-sm font-bold mb-2 text-dark">Konfirmasi Kehadiran</label>
+                            <select id="inputHadir" required class="w-full px-4 py-3 rounded-lg border border-white bg-white/70 focus:outline-none focus:ring-2 focus:ring-primary backdrop-blur-sm text-dark">
                                 <option value="" disabled selected>Pilih Kehadiran</option>
                                 <option value="Hadir">Hadir</option>
                                 <option value="Tidak Hadir">Maaf, Tidak Bisa Hadir</option>
                             </select>
                         </div>
                         <div class="mb-6">
-                            <label class="block text-sm font-bold mb-2">Pesan/Ucapan</label>
-                            <textarea id="inputUcapan" rows="4" required placeholder="Tuliskan doa dan ucapan..." class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:outline-none"></textarea>
+                            <label class="block text-sm font-bold mb-2 text-dark">Pesan/Ucapan</label>
+                            <textarea id="inputUcapan" rows="4" required placeholder="Tuliskan doa dan ucapan..." class="w-full px-4 py-3 rounded-lg border border-white bg-white/70 focus:outline-none focus:ring-2 focus:ring-primary backdrop-blur-sm text-dark"></textarea>
                         </div>
-                        <button type="submit" id="btnSubmit" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-dark transition-all duration-300 flex justify-center items-center gap-2">
+                        <button type="submit" id="btnSubmit" class="w-full bg-primary/90 backdrop-blur text-white font-bold py-3 px-4 rounded-lg hover:bg-dark transition-all duration-300 flex justify-center items-center gap-2 shadow-lg">
                             <span>Kirim Ucapan</span> <i class="fas fa-paper-plane"></i>
                         </button>
                     </form>
                 </div>
 
-                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-100">
-                    <h3 class="font-serif text-2xl font-bold mb-6 border-b pb-2">Kumpulan Ucapan</h3>
+                <div class="bg-white/60 backdrop-blur-lg p-6 md:p-8 rounded-3xl shadow-2xl border border-white/60">
+                    <h3 class="font-serif text-2xl font-bold mb-6 border-b border-primary/20 pb-2">Kumpulan Ucapan</h3>
                     
-                    <div id="loadingUcapan" class="text-center py-4 text-gray-500">
+                    <div id="loadingUcapan" class="text-center py-4 text-gray-700">
                         <i class="fas fa-circle-notch fa-spin text-2xl text-primary mb-2"></i><br>Memuat ucapan...
                     </div>
 
                     <div id="ucapanContainer" class="comments-container max-h-[400px] overflow-hidden pr-2 flex flex-col gap-4 transition-all duration-500">
-                        </div>
+                    </div>
 
-                    <button id="btnViewAll" onclick="viewAllComments()" class="w-full mt-6 bg-gray-100 hover:bg-gray-200 text-dark font-semibold py-2 rounded-lg transition-all hidden">
+                    <button id="btnViewAll" onclick="viewAllComments()" class="w-full mt-6 bg-white/50 hover:bg-white text-dark border border-white/80 font-semibold py-2 rounded-lg transition-all shadow-sm hidden">
                         Lihat Semua Ucapan (<span id="totalComments">0</span>)
                     </button>
                 </div>
             </div>
         </section>
 
-        <footer class="py-10 bg-dark text-white text-center">
+        <footer class="py-10 bg-dark/80 backdrop-blur-md text-white text-center border-t border-white/10">
             <h2 class="font-script text-4xl text-secondary mb-2">Romeo & Juliet</h2>
-            <p class="text-sm text-gray-400">Created with ❤️ | Thank you for your prayers.</p>
+            <p class="text-sm text-gray-300">Created with ❤️ | Thank you for your prayers.</p>
         </footer>
 
     </div>
@@ -263,6 +305,34 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        // --- ANIMASI BUNGA JATUH ---
+        function createFallingFlowers() {
+            const container = document.getElementById('flower-container');
+            const petalCount = 25; // Jumlah kelopak bunga
+
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'falling-petal';
+                
+                // Randomisasi ukuran, posisi, durasi, dan delay animasi
+                const size = Math.random() * 20 + 15; // 15px - 35px
+                const left = Math.random() * 100; // 0vw - 100vw
+                const duration = Math.random() * 5 + 8; // 8s - 13s animasi jatuh
+                const delay = Math.random() * 10; // 0s - 10s delay awal
+                
+                petal.style.width = `${size}px`;
+                petal.style.height = `${size}px`;
+                petal.style.left = `${left}vw`;
+                petal.style.animationDuration = `${duration}s`;
+                petal.style.animationDelay = `${delay}s`;
+                
+                container.appendChild(petal);
+            }
+        }
+        
+        // Panggil generate bunga saat halaman dimuat
+        document.addEventListener("DOMContentLoaded", createFallingFlowers);
+
         // --- 1. SETUP URL BACKEND GOOGLE APPS SCRIPT ---
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfUeJU2Yc-WD_lz9lC94Xss9yityybigKHo3yvgbjKnmJ4KjU_KeTl2a30uwMyCkwPSg/exec'; 
 
@@ -276,32 +346,29 @@
 
         // --- 3. OPEN INVITATION (PLAY MUSIC & ANIMATE) ---
         function openInvitation() {
-            // Play Music
             const music = document.getElementById('bgMusic');
             music.play().catch(e => console.log("Audio autoplay blocked by browser"));
 
-            // Animate Cover Up
             const cover = document.getElementById('coverScreen');
             cover.style.transform = "translateY(-100%)";
             
-            // Show Main Content and init animations
             const main = document.getElementById('mainContent');
             main.classList.remove('hidden');
             
             setTimeout(() => {
                 cover.style.display = 'none';
-                initGSAP(); // Initialize scroll animations only after cover is gone
+                initGSAP(); 
             }, 1000);
         }
 
         // --- 4. COUNTDOWN TIMER ---
-        const targetDate = new Date("Dec 12, 2026 08:00:00").getTime(); // Ganti tanggal sesuai keinginan
+        const targetDate = new Date("Dec 12, 2026 08:00:00").getTime(); 
         
         function updateCountdown() {
             const now = new Date().getTime();
             const distance = targetDate - now;
 
-            if (distance < 0) return; // Waktu habis
+            if (distance < 0) return; 
 
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -312,9 +379,8 @@
             document.getElementById("minutes").innerText = minutes < 10 ? '0' + minutes : minutes;
         }
         
-        // Refresh tiap menit (60000 ms) sesuai request (walaupun standar biasanya per detik)
         setInterval(updateCountdown, 60000); 
-        updateCountdown(); // Call once immediately
+        updateCountdown(); 
 
         // --- 5. SWIPER SLIDER ---
         const swiper = new Swiper(".mySwiper", {
@@ -344,7 +410,9 @@
                     title: 'Berhasil disalin!',
                     text: text,
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 1500,
+                    background: 'rgba(255, 255, 255, 0.9)',
+                    backdrop: `rgba(0,0,0,0.4)`
                 });
             });
         }
@@ -353,7 +421,6 @@
         gsap.registerPlugin(ScrollTrigger);
 
         function initGSAP() {
-            // Parallax bunga bg
             gsap.to(".parallax-flower", {
                 y: "200px",
                 rotation: 45,
@@ -366,7 +433,6 @@
                 }
             });
 
-            // Fade Up
             gsap.utils.toArray('.gsap-fade-up').forEach(element => {
                 gsap.from(element, {
                     scrollTrigger: {
@@ -381,7 +447,6 @@
                 });
             });
 
-            // Fade Left & Right for bio
             gsap.from('.gsap-fade-right', {
                 scrollTrigger: { trigger: '.gsap-fade-right', start: "top 80%" },
                 x: -50, opacity: 0, duration: 1, ease: "power2.out"
@@ -393,8 +458,6 @@
         }
 
         // --- 8. GOOGLE SHEETS INTEGRATION (RSVP) ---
-        
-        // Fetch Comments on Load
         let allComments = [];
         
         async function fetchComments() {
@@ -422,16 +485,14 @@
             container.innerHTML = '';
 
             if (allComments.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-400">Belum ada ucapan. Jadilah yang pertama!</p>';
+                container.innerHTML = '<p class="text-center text-gray-500 font-medium">Belum ada ucapan. Jadilah yang pertama!</p>';
                 return;
             }
 
-            // Tampilkan hanya 5 teratas awalnya
             const limit = container.classList.contains('overflow-y-auto') ? allComments.length : 5;
             const displayData = allComments.slice(0, limit);
 
             displayData.forEach(item => {
-                // Formatting Date
                 const dateObj = new Date(item.timestamp);
                 const dateStr = isNaN(dateObj) ? "-" : dateObj.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
                 
@@ -439,17 +500,17 @@
                 const icon = item.hadir === 'Hadir' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
 
                 const html = `
-                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div class="bg-white/60 p-4 rounded-xl border border-white shadow-sm backdrop-blur-sm">
                         <div class="flex justify-between items-start mb-2">
                             <div>
-                                <h4 class="font-bold text-lg">${item.nama}</h4>
-                                <span class="text-xs text-gray-400"><i class="far fa-clock"></i> ${dateStr}</span>
+                                <h4 class="font-bold text-lg text-dark">${item.nama}</h4>
+                                <span class="text-xs text-gray-500 font-medium"><i class="far fa-clock"></i> ${dateStr}</span>
                             </div>
                             <span class="text-xs px-2 py-1 rounded-full font-semibold flex items-center gap-1 ${badgeClass}">
                                 ${icon} ${item.hadir}
                             </span>
                         </div>
-                        <p class="text-gray-700 whitespace-pre-wrap">${item.ucapan}</p>
+                        <p class="text-gray-800 font-medium whitespace-pre-wrap">${item.ucapan}</p>
                     </div>
                 `;
                 container.innerHTML += html;
@@ -467,10 +528,9 @@
             const container = document.getElementById('ucapanContainer');
             container.classList.remove('max-h-[400px]', 'overflow-hidden');
             container.classList.add('h-[500px]', 'overflow-y-auto');
-            renderComments(); // Re-render to show all
+            renderComments(); 
         }
 
-        // Submit RSVP Form
         async function submitRSVP(e) {
             e.preventDefault();
             
@@ -494,15 +554,21 @@
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify(payload),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } // text/plain untuk CORS bypass apps script
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
                 
                 const result = await response.json();
                 
                 if(result.status === 'success') {
-                    Swal.fire("Terima Kasih!", "RSVP & Ucapan Anda telah terkirim.", "success");
+                    Swal.fire({
+                        title: "Terima Kasih!", 
+                        text: "RSVP & Ucapan Anda telah terkirim.", 
+                        icon: "success",
+                        background: 'rgba(255, 255, 255, 0.95)',
+                        backdrop: `rgba(0,0,0,0.5)`
+                    });
                     document.getElementById('inputUcapan').value = '';
-                    fetchComments(); // Reload data
+                    fetchComments(); 
                 } else {
                     throw new Error("Gagal menyimpan data");
                 }
@@ -514,7 +580,6 @@
             }
         }
 
-        // Init Fetch on page load
         fetchComments();
 
     </script>
